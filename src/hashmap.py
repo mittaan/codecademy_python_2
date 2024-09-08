@@ -1,42 +1,53 @@
-from math import inf
+from dataset import get_dataset, normalize_string, matches
 
 class HashMap:
     def __init__(self, size=0):
         self.size = size
-        self.hash_table = {}
-        self.search_history = []
+        self.dataset = get_dataset()
+        self.searched_items = {}
+        self.history = []
 
-    def set_value(self, **payload):
-        self.hash_table.update(payload)
+    def get_data(self, key):
+        return self.dataset.get(key)
 
-    def get_value(self, key):
-        for searched_item in self.search_history:
-            if searched_item.get(key) != None:
-                return 'Already searched for this item'
-        return self.hash_table.get(key)
+    def set_searched_item(self, key):
+        payload = self.get_data(key)
+        self.searched_items.update({key: payload})
 
-    def delete_value(self, key):
-        deleted_element = self.hash_table.pop(key, 'Key not found')
-        self.search_history.append(deleted_element)
+    def get_searched_item(self, key):
+        return self.searched_items.get(key)
+
+    def delete_search(self, key):
+        self.history.append((key, self.searched_items.get(key)))
+        self.searched_items.clear()
+
+    def update_searched_items(self, search_input):
+        search_input_normalized = normalize_string(search_input)
+        for key in self.dataset:
+            normalized_key = normalize_string(key)
+            if matches(search_input_normalized, normalized_key) or matches(search_input, key):
+                self.set_searched_item(key)
+
+    def is_dataset_empty(self):
+        return self.dataset == {}
 
 
-def dijkstras(graph, start):
-  distances = {}
-  
-  for vertex in graph:
-    distances[vertex] = inf
+def get_alphanumeric_characters():
+
+    letters = [chr(i).upper() + chr(i) for i in range(97, 123)]
+    numbers = [str(i) for i in range(10)]
+
+    alphanumeric_characters = numbers + letters
+
+    return alphanumeric_characters
+
+# def get_user_input():
+#     valid_characters = get_alphanumeric_characters()
+#     search_input = ''
+
+#     while True:
+#         user_input = input()
+#         if user_input in valid_characters:
+#             search_input += user_input
+
     
-  distances[start] = 0
-  vertices_to_explore = [(0, start)]
-  
-  while vertices_to_explore:
-    current_distance, current_vertex = heappop(vertices_to_explore)
-    
-    for neighbor, edge_weight in graph[current_vertex]:
-      new_distance = current_distance + edge_weight
-      
-      if new_distance < distances[neighbor]:
-        distances[neighbor] = new_distance
-        heappush(vertices_to_explore, (new_distance, neighbor))
-        
-  return distances

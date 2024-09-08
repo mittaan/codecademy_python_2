@@ -41,3 +41,20 @@ def get_dataset():
         dataset[key]['Synergist_Muscles'] = synergist_muscles_list[:-2]
 
     return dataset
+
+def normalize_string(string):
+    for character in ' !?()[]}{.,:;-_':
+        string = string.replace(character, '')
+    string = string.lower()
+
+    return string
+
+def matches(input_string, string_to_match):
+    if len(input_string) > len(string_to_match):
+        return False
+    
+    for i in range(len(input_string)):
+        if input_string[i] != string_to_match[i]:
+            return False
+        
+    return True

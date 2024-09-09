@@ -2,7 +2,7 @@ from dataset import get_dataset, normalize_string, matches
 
 class HashMap:
     def __init__(self):
-        self.dataset = get_dataset()
+        self.dataset, self.info = get_dataset()
         self.searched_items = {}
         self.searched_keys = {}
         self.history = []
@@ -40,8 +40,12 @@ class HashMap:
     def print_searched_items(self):
         idx = 1
         for item in self.searched_items:
-            self.set_searched_keys(idx, item)
-            print(f'{str(idx)}: {item}')
+            self.set_searched_keys(str(idx), item)
+            print(f'{idx}: {item}')
+
+    def print_info(self):
+        for idx in range(1, len(self.info)):
+            print(f'{idx}: {self.info[idx]}')
 
     def list_searched_keys(self):
         key_indexes = list(self.searched_keys.keys())
@@ -49,7 +53,8 @@ class HashMap:
         return key_indexes
 
     def get_user_choice(self, user_choice):
-        return self.searched_keys.get(user_choice)
+        key = self.searched_keys.get(user_choice)
+        return self.get_searched_item(key)
             
 
 def is_search_complete():
@@ -108,11 +113,24 @@ def get_user_input():
             print(f'\nCurrently searching for "{search_input}".')
             hash_table.print_searched_items()
 
+    searched_exercise = {}
+
     while True:
         search_options = hash_table.list_searched_keys()
         user_choice = input(f'Choose one of the following options: {search_options}')
         if user_choice in search_options:
-            return # TODO Either return the data or create a second function to ask which data is relevant (or maybe format all of it)
+            searched_exercise.update(hash_table.get_user_choice(user_choice))
+            break
+
+    indexes_to_string = [str(idx) for idx in range(1, len(hash_table.info))]
+
+    while True:
+        chosen_info = input(f'Which info are you interested in?\n{hash_table.print_info()}')
+        if chosen_info in indexes_to_string:
+            searched_exercise.get(chosen_info)
+            break
+
+
 
 
 get_user_input()

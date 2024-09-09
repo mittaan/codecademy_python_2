@@ -40,7 +40,7 @@ def get_dataset():
 
         dataset[key]['Synergist_Muscles'] = synergist_muscles_list[:-2]
 
-    return dataset
+    return dataset, columns
 
 def normalize_string(string):
     for character in ' !?()[]}{.,:;-_':

@@ -1,136 +1,77 @@
-from dataset import get_dataset, normalize_string, matches
+from dataset import get_dataset, normalize_string, matches, same_length
 
 class HashMap:
     def __init__(self):
         self.dataset, self.info = get_dataset()
         self.searched_items = {}
         self.searched_keys = {}
-        self.history = []
+        self.history = [(None, None) for _ in range(5)]
 
-    def get_data(self, key):
+    def get_data(self, key: str) -> str:
         return self.dataset.get(key)
+    
+    def get_info(self, idx: int) -> str:
+        return self.info[idx]
+    
+    def update_dataset(self) -> None:
+        self.dataset = self.searched_items.copy()
 
-    def set_searched_item(self, key):
+    def set_searched_item(self, key: str) -> None:
         payload = self.get_data(key)
         self.searched_items.update({key: payload})
 
-    def set_searched_keys(self, idx, key):
+    def set_searched_keys(self, idx: str, key:str) -> None:
         self.searched_keys.update({idx: key})
 
-    def get_searched_item(self, key):
+    def get_searched_item(self, key: str) -> str:
         return self.searched_items.get(key)
 
-    def delete_search(self, key):
+    def clear_search(self, key: str) -> None:
         self.history.append((key, self.searched_items.get(key)))
+        self.history.pop(0)
         self.searched_items.clear()
         self.searched_keys.clear()
         self.dataset = get_dataset()
 
-    def update_searched_items(self, search_input):
+    def update_searched_items(self, search_input: str) -> None:
+        self.searched_items.clear()
         search_input_normalized = normalize_string(search_input)
-        for key in self.dataset:
+        for key in self.dataset.keys():
             normalized_key = normalize_string(key)
+            if (matches(search_input_normalized, normalized_key) or matches(search_input, key)) and (same_length(search_input_normalized, normalized_key) or same_length(search_input, key)):
+                self.set_searched_item(key)
+                break
             if matches(search_input_normalized, normalized_key) or matches(search_input, key):
                 self.set_searched_item(key)
-        self.dataset = self.searched_items.copy()
+        self.update_dataset()
 
-    def is_empty(self, dictionary):
+    def is_empty(self, dictionary: dict) -> bool:
         return dictionary == {}
     
-    def print_searched_items(self):
-        idx = 1
-        for item in self.searched_items:
-            self.set_searched_keys(str(idx), item)
-            print(f'{idx}: {item}')
+    def print_searched_items(self) -> None:
+        self.searched_keys.clear()
+        for idx, item in enumerate(list(self.searched_items)):
+            self.set_searched_keys(str(idx+1), item)
+            print(f'{idx+1}: {item}')
+        print()
 
-    def print_info(self):
+    def print_info(self) -> None:
         for idx in range(1, len(self.info)):
-            print(f'{idx}: {self.info[idx]}')
+            info = self.get_info(idx)
+            cleaned_info = info.replace('_', ' ')
+            print(f'{idx}: {cleaned_info}')
 
-    def list_searched_keys(self):
+    def display_history(self) -> None:
+        print('Last 5 exercises searched:')
+        for search, content in self.history[::-1]:
+            if search or content:
+                print(f'• {search}')
+
+    def list_searched_keys(self) -> list[str]:
         key_indexes = list(self.searched_keys.keys())
         key_indexes.sort()
         return key_indexes
 
-    def get_user_choice(self, user_choice):
+    def get_user_choice(self, user_choice: str) -> str:
         key = self.searched_keys.get(user_choice)
         return self.get_searched_item(key)
-            
-
-def is_search_complete():
-    user_choice = input('Is the exercise you were looking for in the list above?')
-    user_choice = user_choice.lower()
-
-    if user_choice in ['y', 'n']:
-        return user_choice == 'y'
-    else:
-        return None
-
-def get_alphanumeric_characters():
-
-    lowercase_letters = [chr(i) for i in range(97, 123)]
-    uppercase_letters = [chr(i).upper() for i in range(97, 123)]
-    numbers = [str(i) for i in range(10)]
-
-    alphanumeric_characters = numbers + lowercase_letters + uppercase_letters
-
-    return alphanumeric_characters
-
-def get_user_input():
-    valid_characters = get_alphanumeric_characters()
-    search_input = ''
-    hash_table = HashMap()
-    current_searched_items = len(hash_table.searched_items)
-
-    while not hash_table.is_empty(hash_table.dataset):
-        user_input = input('\nEnter your search:\n')
-        if user_input in valid_characters:
-            search_input += user_input
-        else:
-            print('\nChoose a different character:')
-            continue
-        hash_table.update_searched_items(search_input)
-        updated_search_items = len(hash_table.searched_items)
-        if hash_table.is_empty(hash_table.searched_items):
-            print('\nThere is no exercise matching the search.')
-            return
-        if current_searched_items == updated_search_items:
-            print(f'\nCurrently searching for "{search_input}".')
-            hash_table.print_searched_items()
-            while True:
-                end_search = is_search_complete()
-                if end_search == None:
-                    print('Please choose either "y" or "n".')
-                    continue
-                else:
-                    break
-            if end_search:
-                break
-            else:
-                continue
-        else:
-            current_searched_items = updated_search_items
-            print(f'\nCurrently searching for "{search_input}".')
-            hash_table.print_searched_items()
-
-    searched_exercise = {}
-
-    while True:
-        search_options = hash_table.list_searched_keys()
-        user_choice = input(f'Choose one of the following options: {search_options}')
-        if user_choice in search_options:
-            searched_exercise.update(hash_table.get_user_choice(user_choice))
-            break
-
-    indexes_to_string = [str(idx) for idx in range(1, len(hash_table.info))]
-
-    while True:
-        chosen_info = input(f'Which info are you interested in?\n{hash_table.print_info()}')
-        if chosen_info in indexes_to_string:
-            searched_exercise.get(chosen_info)
-            break
-
-
-
-
-get_user_input()

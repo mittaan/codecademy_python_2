@@ -1,6 +1,6 @@
 import pandas as pd
 
-def get_dataset():
+def get_dataset() -> tuple[dict, list[str]]:
 
     df = pd.read_csv("stretch_exercise_dataset.csv")
 
@@ -42,14 +42,14 @@ def get_dataset():
 
     return dataset, columns
 
-def normalize_string(string):
+def normalize_string(string: str) -> str:
     for character in ' !?()[]}{.,:;-_':
         string = string.replace(character, '')
     string = string.lower()
 
     return string
 
-def matches(input_string, string_to_match):
+def matches(input_string: str, string_to_match: str) -> bool:
     if len(input_string) > len(string_to_match):
         return False
     
@@ -58,3 +58,6 @@ def matches(input_string, string_to_match):
             return False
         
     return True
+
+def same_length(first: str, second: str) -> bool:
+    return len(first) == len(second)

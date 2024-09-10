@@ -27,11 +27,12 @@ class HashMap:
         return self.searched_items.get(key)
 
     def clear_search(self, key: str) -> None:
-        self.history.append((key, self.searched_items.get(key)))
+        if key != None:
+            self.history.append((key, self.searched_items.get(key)))
         self.history.pop(0)
         self.searched_items.clear()
         self.searched_keys.clear()
-        self.dataset = get_dataset()
+        self.dataset, _ = get_dataset()
 
     def update_searched_items(self, search_input: str) -> None:
         self.searched_items.clear()

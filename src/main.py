@@ -1,5 +1,29 @@
 from hashmap import HashMap
 
+def description() -> None:
+    ascii_art = '''
+  ****************************************
+##****************************************##
+##                                        ##
+##                                        ##
+##               |\__/,|   (`\            ##
+##             _.|o o  |_   ) )           ##
+##           -(((---(((--------           ##
+##                                        ##
+##                                        ##
+##****************************************##
+  ****************************************
+
+ Welcome to the Fitness Search Engine!
+
+ ----------------------------------------------------------------------
+
+ Get all the information you need to start exercising.
+ Let's get started!
+
+'''
+    print(ascii_art)
+
 def is_search_complete(message: str) -> bool:
     user_choice = input(message)
     user_choice = user_choice.lower()
@@ -111,7 +135,7 @@ def get_user_input(valid_characters: list[str], hash_table: HashMap, search_inpu
 
 
 if __name__ == '__main__':
-
+    description()
     valid_characters = get_alphanumeric_characters()
     repeated = False
     data = HashMap()
@@ -122,7 +146,8 @@ if __name__ == '__main__':
             search_again = is_search_complete('Do you want to search another exercise? [y/n] ')
             if search_again == True:
                 data.clear_search(result_key)
-                repeated = True
+                if result_key != None:
+                    repeated = True
                 break
             elif search_again == False:
                 exit()
